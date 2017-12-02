@@ -20,5 +20,20 @@ class ofApp : public ofBaseApp{
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
-		
+    
+    //4 cameras for 4 effects
+    ofVideoGrabber myCamera1;
+    ofVideoGrabber myCamera2;
+    ofVideoGrabber myCamera3;
+    ofVideoGrabber myCamera4;
+    
+    ofPixels pixels, pixels2;
+    
+    ofPixels pixelout, lastPixels;
+    
+    // 4 textures for 4 effects
+    ofTexture backgroundSubtraction;
+//    ofTexture myTexture;
+//    ofTexture myTexture;
+//    ofTexture myTexture;
 };
