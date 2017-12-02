@@ -25,6 +25,7 @@ void ofApp::setup(){
     myCamera3.initGrabber(320,240);
     myCamera4.initGrabber(320,240);
     
+    myPixels.allocate(640,480,3);
     pixels.allocate(640,480,3);
     pixels2.allocate(640,480,3);
     
@@ -35,17 +36,41 @@ void ofApp::setup(){
 //--------------------------------------------------------------
 void ofApp::update(){
 
+    // CAMERA 1: SIMPLE GREYSCALE
     myCamera1.update();
     
-    pixels = myCamera1.getPixels();
-    
-    // CAMERA 1: Background subtraction
-    for (int i = 0 ; i < pixels.size() ; i++) {
+    if (myCamera1.isFrameNew()) {
         
-        pixels[i] = abs(pixels[i]-pixels2[i]);
+        myPixels = myCamera1.getPixels();
+        
+        //Loop through every pixel of the camera
+        for(int i=0; i < 320; i++) {
+            for(int j=0; j < 240; j++) {
+                
+                //get the current pixel position
+                int index = (i+j)*3;
+                
+                //update the RBG values of each pixel
+                // 0.2126*R + 0.7152*G + 0.0722*B
+                float red = (pixels[index] * 0.2126);
+                float green = (pixels[index+1] * 0.7152);
+                float blue = (pixels[index+2] * 0.0722);
+                
+                myPixels[i] = red + green + blue;
+                
+                //If current pixel is larger than threshold value of 128
+                if (myPixels[i] > 128)
+                    myPixels[i] = 255; //set pixel colour to white
+                else
+                    myPixels[i]=0; //otherwise set it to black if below threshold value
+            }
+        }
     }
     
-    backgroundSubtraction.allocate(pixels);
+    myTexture1.allocate(myPixels);
+    
+
+    // CAMERA 2
 }
 
 
@@ -53,7 +78,7 @@ void ofApp::update(){
 void ofApp::draw(){
     
     // Display 4 camerasofTexture myTexture;
-    backgroundSubtraction.draw(0,0);
+    myTexture1.draw(0,0);
     
 
 }
@@ -63,7 +88,6 @@ void ofApp::keyPressed(int key){
 
     // Press space bar to take a snap!
     if (key == 32) {
-        pixels2 = myCamera1.getPixels();
         cout << "Picture taken!" << endl;
     }
 }

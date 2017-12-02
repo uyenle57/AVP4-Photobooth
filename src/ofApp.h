@@ -29,11 +29,11 @@ class ofApp : public ofBaseApp{
     
     ofPixels pixels, pixels2;
     
-    ofPixels pixelout, lastPixels;
+    ofPixels myPixels;
     
     // 4 textures for 4 effects
-    ofTexture backgroundSubtraction;
-//    ofTexture myTexture;
-//    ofTexture myTexture;
-//    ofTexture myTexture;
+    ofTexture myTexture1;
+//    ofTexture myTexture2;
+//    ofTexture myTexture3;
+    //    ofTexture myTexture4;
 };
