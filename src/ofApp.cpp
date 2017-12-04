@@ -22,14 +22,15 @@ void ofApp::setup(){
     ofBackground(0);
     
     //Allocate memory for the cameras
-    myCamera1.initGrabber(320,240);
-    myCamera2.initGrabber(320,240);
+    grayScaleCamera.initGrabber(320,240);
+    motionBlurCamera.initGrabber(320,240);
     myCamera3.initGrabber(320,240);
     myCamera4.initGrabber(320,240);
     
-    myPixels.allocate(myCamera1.getWidth(), myCamera1.getHeight(), 1);
-    
-//    pix = myCamera1.getPixels();
+    //Allocate pixels for the cameras
+    myPixels1.allocate(grayScaleCamera.getWidth(), grayScaleCamera.getHeight(), 1);
+    myPixels2.allocate(motionBlurCamera.getWidth(), motionBlurCamera.getHeight(), 1);
+
 
 }
 
@@ -37,31 +38,46 @@ void ofApp::setup(){
 void ofApp::update(){
 
     // CAMERA 1: SIMPLE GREYSCALE
-    myCamera1.update();
+    grayScaleCamera.update();
     
     //If there is fresh data
-    if (myCamera1.isFrameNew()) {
+    if (grayScaleCamera.isFrameNew()) {
         
-        pix = myCamera1.getPixels();
+        pix1 = grayScaleCamera.getPixels();
 
         //Loop through every pixel of the camera
         //Hard threshold the image and make it greyscale.
-        for (int i =0;i<myCamera1.getWidth()*myCamera1.getHeight();i++) {
+        for (int i =0; i < grayScaleCamera.getWidth()*grayScaleCamera.getHeight(); i++) {
             
             int index = i*3;
             
             // 0.2126*R + 0.7152*G + 0.0722*B
-            myPixels[i]=(pix[index] * 0.2126) + (pix[index+1] * 0.7152) + (pix[index+2] * 0.0722);
+            myPixels1[i]=(pix1[index] * 0.2126) + (pix1[index+1] * 0.7152) + (pix1[index+2] * 0.0722);
             
-            if (myPixels[i] > 128)
-                myPixels[i]=255;
+            if (myPixels1[i] > 128)
+                myPixels1[i]=255;
             else
-                myPixels[i]=0;
+                myPixels1[i]=0;
         }
-        myTexture1.allocate(myPixels);
+        grayscaleTexture.allocate(myPixels1);
     }
 
+    // CAMERA 2: MOTION BLUR
+    motionBlurCamera.update();
 
+    if(motionBlurCamera.isFrameNew()) {
+
+        pix2 = motionBlurCamera.getPixels();
+
+        for(int i=0; i < motionBlurCamera.getWidth()*motionBlurCamera.getHeight(); i++) {
+            
+            myPixels2[i] = lastVals[i%3] + blur * (pix2[i] - lastVals[i%3]);
+            
+            lastVals[i%3] = myPixels2[i];
+        }
+        
+        motionBlurTexture.allocate(myPixels2);
+    }
 }
 
 
@@ -69,7 +85,8 @@ void ofApp::update(){
 void ofApp::draw(){
     
     // Display 4 cameras
-    myTexture1.draw(20, 20);
+    grayscaleTexture.draw(20, 20);
+    motionBlurTexture.draw(340,20);
     
 }
 
