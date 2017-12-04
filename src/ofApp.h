@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
+#include "imageProc.hpp"
 
 class ofApp : public ofBaseApp{
 
@@ -27,13 +28,15 @@ class ofApp : public ofBaseApp{
     ofVideoGrabber myCamera3;
     ofVideoGrabber myCamera4;
     
-    ofPixels pixels, pixels2;
-    
     ofPixels myPixels;
+    ofPixels pix;
+    
     
     // 4 textures for 4 effects
     ofTexture myTexture1;
 //    ofTexture myTexture2;
 //    ofTexture myTexture3;
-    //    ofTexture myTexture4;
+//    ofTexture myTexture4;
+    
+    imageProc imageProc;
 };
