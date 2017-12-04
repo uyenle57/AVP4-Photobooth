@@ -25,8 +25,8 @@ class ofApp : public ofBaseApp{
     //4 cameras for 4 effects
     ofVideoGrabber grayScaleCamera;
     ofVideoGrabber motionBlurCamera;
-    ofVideoGrabber myCamera3;
-    ofVideoGrabber myCamera4;
+    ofVideoGrabber edgeDetectCamera;
+    ofVideoGrabber highPassCamera;
     
 //    ofPixels grayscalePixelsIn, grayscalePixelsOut;
 //    ofPixels motionBlurPixelsIn, motionBlurPixelsOut;
@@ -39,11 +39,15 @@ class ofApp : public ofBaseApp{
     // 4 textures for 4 effects
     ofTexture grayscaleTexture;
     ofTexture motionBlurTexture;
-    ofTexture myTexture3;
-    ofTexture myTexture4;
+    ofTexture edgeDetectTexture;
+    ofTexture highPassTexture;
     
     imageProc imageProc;
     
-    float lastVals[9];
-    float blur = 10;
+    int numChannels = 1; //for greyscale
+    float lastVals1[9];
+    float lastVals2[9];
+    float lastVals3[9];
+    float blur = 2.0;
+    float edge = 2.0;
 };
