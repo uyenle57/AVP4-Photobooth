@@ -13,25 +13,26 @@
  
  ----------------
  Credits:
- - Background subtraction tutorial: http://openframeworks.cc/ofBook/chapters/image_processing_computer_vision.html#acompleteworkflowbackgroundsubtraction
+ -
  */
 
 //--------------------------------------------------------------
 void ofApp::setup(){
     
-    ofBackground(0);
+    ofBackground(255);
     
     //Allocate memory for the cameras
     grayScaleCamera.initGrabber(320,240);
     motionBlurCamera.initGrabber(320,240);
-    edgeDetectCamera.initGrabber(320,240);
+    frameDiffCamera.initGrabber(320,240);
     highPassCamera.initGrabber(320,240);
     
     //Allocate pixels for the cameras
     myPixels1.allocate(grayScaleCamera.getWidth(), grayScaleCamera.getHeight(), 1);
-    myPixels2.allocate(motionBlurCamera.getWidth(), motionBlurCamera.getHeight(), 1);
-    myPixels3.allocate(edgeDetectCamera.getWidth(), edgeDetectCamera.getHeight(), 1);
-    myPixels4.allocate(highPassCamera.getWidth(), highPassCamera.getHeight(), 1);
+    myPixels2.allocate(motionBlurCamera.getWidth(), motionBlurCamera.getHeight(), numChannel);
+    myPixels4.allocate(highPassCamera.getWidth(), highPassCamera.getHeight(), numChannel);
+    myPixels3.allocate(frameDiffCamera.getWidth(), frameDiffCamera.getHeight(), 1);
+    lastPixels.allocate(frameDiffCamera.getWidth(), frameDiffCamera.getHeight(), numChannel);
 
 }
 
@@ -39,6 +40,7 @@ void ofApp::setup(){
 void ofApp::update(){
 
     // ============ CAMERA 1: SIMPLE GREYSCALE ============
+    
     grayScaleCamera.update();
     
     //If there is fresh data
@@ -48,22 +50,23 @@ void ofApp::update(){
 
         //Loop through every pixel of the camera
         //Hard threshold the image and make it greyscale.
-        for (int i =0; i < grayScaleCamera.getWidth()*grayScaleCamera.getHeight(); i += numChannels) {
+        for (int i =0; i < grayScaleCamera.getWidth()*grayScaleCamera.getHeight(); i += grayscaleChannel) {
             
             int index = i*3;
             
             // 0.2126*R + 0.7152*G + 0.0722*B
             myPixels1[i]=(pix1[index] * 0.2126) + (pix1[index+1] * 0.7152) + (pix1[index+2] * 0.0722);
             
+            //Set the threshold level
             if (myPixels1[i] > 128)
-                myPixels1[i]=255;
+                myPixels1[i]=255; //set to white
             else
-                myPixels1[i]=0;
+                myPixels1[i]=0; //else set to black
         }
         grayscaleTexture.allocate(myPixels1);
     }
 
-    
+
     // ============ CAMERA 2: MOTION BLUR ============
     motionBlurCamera.update();
 
@@ -71,7 +74,7 @@ void ofApp::update(){
 
         pix2 = motionBlurCamera.getPixels();
 
-        for(int i=0; i < motionBlurCamera.getWidth()*motionBlurCamera.getHeight(); i++) {
+        for(int i=0; i < motionBlurCamera.getWidth()*motionBlurCamera.getHeight()*numChannel; i++) {
 
             myPixels2[i] = lastVals1[i%3] + blur * (pix2[i] - lastVals1[i%3]);
             
@@ -80,44 +83,51 @@ void ofApp::update(){
         
         motionBlurTexture.allocate(myPixels2);
     }
-    
 
-    /*
-    // ============ CAMERA 3: EDGE DETECT ============
-    edgeDetectCamera.update();
 
-    if(edgeDetectCamera.isFrameNew()) {
+    // ============ CAMERA 3: FRAME DIFFERENCING ============
+    frameDiffCamera.update();
 
-        for(int i=0; i < edgeDetectCamera.getWidth()*edgeDetectCamera.getHeight(); i++) {
+    if(frameDiffCamera.isFrameNew()) {
+        
+        pix3 = frameDiffCamera.getPixels();
 
-            myPixels3[i] = lastVals2[i%3] + edge * (pix3[i] - lastVals2[i%3]);
-
-            lastVals2[i%3] = myPixels3[i];
-
-            myPixels3[i] = pix3[i]-myPixels3[i];
+        for (int i = 0; i < 320; i++){
+            for (int j = 0; j < 240; j++) {
+                
+                //Frame Difference on the red channel
+                myPixels3[(j*320+i)]=abs((lastPixels[(j*320+i)*3])-(pix3[(j*320+i)*3]));
+                
+                lastPixels[(j*320+i)*3]=pix3[(j*320+i)*3];
+            }
         }
+        
+        frameDiffTexture.allocate(myPixels3);
 
-        edgeDetectTexture.allocate(myPixels3);
     }
-    
-    
+
     // ============ CAMERA 4: HIGH PASS (SHARPEN) ============
     highPassCamera.update();
     
     if(highPassCamera.isFrameNew()) {
-        
-        for(int i=0; i < highPassCamera.getWidth()*highPassCamera.getHeight(); i++) {
-            
+ 
+        pix4 = highPassCamera.getPixels();
+ 
+        for(int i=0; i < highPassCamera.getWidth()*highPassCamera.getHeight()*numChannel; i++) {
+
             myPixels4[i] = lastVals3[i%3] + blur * (pix4[i] - lastVals3[i%3]);
-            
+
             lastVals3[i%3] = myPixels4[i];
-            
+
             myPixels4[i] = pix4[i]-myPixels4[i];
         }
-        
+
         highPassTexture.allocate(myPixels4);
+        
     }
-     */
+
+    ////////
+
 }
 
 
@@ -126,33 +136,51 @@ void ofApp::draw(){
     
     // Display 4 cameras
     grayscaleTexture.draw(20, 20);
-    motionBlurTexture.draw(340,20);
-//    edgeDetectTexture.draw(20, 340);
-//    highPassTexture.draw(340, 340);
+    motionBlurTexture.draw(360,20);
+    highPassTexture.draw(20, 280);
+    frameDiffTexture.draw(360, 280);
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
 
-    // Press space bar to take a snap!
+    // Press space bar to take a photo!
     if (key == 32) {
+        snapshot.grabScreen(0, 0 , ofGetWidth(), ofGetHeight());
+        snapshot.save("screenshot.png");
         cout << "Picture taken!" << endl;
     }
     
     if(key == OF_KEY_UP) {
-        numChannels++;
-        cout << numChannels << endl;
-        //prevent going too high (for performance reasons)
-        if (numChannels >= 20) {
-            numChannels = 20; //max numChannels is 21
+        grayscaleChannel++;
+        blur++;
+        
+        cout << "grayscaleChannel: " << grayscaleChannel << endl;
+        cout << "blur " << blur << endl;
+        
+        //prevent values too high
+        //otherwise the effects wil be screwed up
+        if (grayscaleChannel >= 10)
+            grayscaleChannel = 10; //max grayscle channels is 10
+        
+        if (blur >= 2.2) {
+            blur = 2.2;
         }
     }
     else if (key == OF_KEY_DOWN ) {
-        numChannels--;
-        cout << numChannels << endl;
-        //cannot have less than 1 channel
-        if (numChannels < 1) {
-            numChannels = 1;
+        grayscaleChannel--;
+        blur--;
+        
+        cout << "grayscaleChannel: " << grayscaleChannel << endl;
+        cout << "blur " << blur << endl;
+        
+        //cannot have less than 1 grayscale channel
+        if (grayscaleChannel < 1) {
+            grayscaleChannel = 1;
+        }
+        //cannot have less than 1 blur and edge channel
+        if (blur <= 0.2) {
+            blur = 0.2;
         }
     }
 

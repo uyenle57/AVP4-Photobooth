@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ofMain.h"
-#include "imageProc.hpp"
 
 class ofApp : public ofBaseApp{
 
@@ -25,29 +24,30 @@ class ofApp : public ofBaseApp{
     //4 cameras for 4 effects
     ofVideoGrabber grayScaleCamera;
     ofVideoGrabber motionBlurCamera;
-    ofVideoGrabber edgeDetectCamera;
+    ofVideoGrabber frameDiffCamera;
     ofVideoGrabber highPassCamera;
     
-//    ofPixels grayscalePixelsIn, grayscalePixelsOut;
-//    ofPixels motionBlurPixelsIn, motionBlurPixelsOut;
     
     ofPixels myPixels1, pix1;
     ofPixels myPixels2, pix2;
-    ofPixels myPixels3, pix3;
+    ofPixels myPixels3, pix3, lastPixels, blockPix;
     ofPixels myPixels4, pix4;
     
     // 4 textures for 4 effects
     ofTexture grayscaleTexture;
     ofTexture motionBlurTexture;
-    ofTexture edgeDetectTexture;
+    ofTexture frameDiffTexture;
     ofTexture highPassTexture;
     
-    imageProc imageProc;
+    int numChannel = 3;
+    int grayscaleChannel = 1; //for greyscale
     
-    int numChannels = 1; //for greyscale
     float lastVals1[9];
     float lastVals2[9];
     float lastVals3[9];
-    float blur = 2.0;
-    float edge = 2.0;
+    
+    float blur = 0.2;
+    
+    ofImage snapshot;
+
 };
