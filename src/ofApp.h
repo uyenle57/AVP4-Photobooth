@@ -21,33 +21,37 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
     
-    //4 cameras for 4 effects
+    //5 cameras
     ofVideoGrabber grayScaleCamera;
     ofVideoGrabber motionBlurCamera;
     ofVideoGrabber frameDiffCamera;
     ofVideoGrabber highPassCamera;
+    ofVideoGrabber invertedCamera;
     
-    
+    //5 sets of pixels for each camera
     ofPixels myPixels1, pix1;
     ofPixels myPixels2, pix2;
     ofPixels myPixels3, pix3, lastPixels, blockPix;
     ofPixels myPixels4, pix4;
+    ofPixels myPixels5, pix5;
     
-    // 4 textures for 4 effects
+    // 5 textures for 5 filters
     ofTexture grayscaleTexture;
     ofTexture motionBlurTexture;
-    ofTexture frameDiffTexture;
     ofTexture highPassTexture;
+    ofTexture frameDiffTexture;
+    ofTexture invertedTexture;
     
-    int numChannel = 3;
+    int numChannel = 3; //each pixel requires 3 bytes for storing R,B,G values (assumes its using RGB)
     int grayscaleChannel = 1; //for greyscale
     
     float lastVals1[9];
     float lastVals2[9];
-    float lastVals3[9];
+    
+    unsigned char* invertedVideoData;
     
     float blur = 0.2;
     
-    ofImage snapshot;
+    ofImage snapshot; //for taking and saving snapshots
 
 };
