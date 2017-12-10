@@ -47,9 +47,6 @@ class ofApp : public ofBaseApp{
     
     float lastVals1[9];
     float lastVals2[9];
-    
-    unsigned char* invertedVideoData;
-    
     float blur = 0.2;
     
     ofImage snapshot; //for taking and saving snapshots
