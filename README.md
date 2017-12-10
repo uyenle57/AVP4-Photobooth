@@ -9,14 +9,15 @@ A simple project that explores live camera pixels processing in openFrameworks.
 
 <br>
 
-![screenshot](image.jpg)
+![screenshot](bin/data/screenshot.png)
 
 #### Prerequisites
 - [Xcode](https://itunes.apple.com/us/app/xcode/id497799835?mt=12) v9.1 
 - [openFrameworks](http://openframeworks.cc/download/) v0.9.8
 
 #### Instructions
-Press arrows keys UP and DOWN to change filters effect.
+1. Press arrows keys UP and DOWN to change filters effect.
+2. Move around to see Frame difference effect working.
 
 <br>
 
