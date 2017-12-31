@@ -16,8 +16,10 @@ A simple project that explores live camera pixels processing in openFrameworks.
 - [openFrameworks](http://openframeworks.cc/download/) v0.9.8
 
 #### Instructions
-1. Press arrows keys UP and DOWN to change filters effect.
-2. Move around to see Frame difference effect working.
+1. Download and install Xcode and openFrameworks.
+2. Open and compile `AVP4-Photobooth.xcodeproj` in Xcode.
+3. Press arrows keys UP and DOWN to change filters effect.
+4. Move around to see Frame difference effect working.
 
 <br>
 
